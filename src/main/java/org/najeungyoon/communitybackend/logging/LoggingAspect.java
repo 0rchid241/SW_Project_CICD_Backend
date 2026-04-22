@@ -29,13 +29,10 @@ public class LoggingAspect {
     * */
 
 
-
-
-    /* 모든 컨트롤러의 모든 메소드에 포인트컷 */
+    /* 모든 컨트롤러의 모든 메소드에 포인트컷
+    *  포인트컷을 지정하기 위한 메서드  */
     @Pointcut("execution(* org.najeungyoon.communitybackend.controller..*.*(..))")
-    public void controllerPointcut(){
-        /* 포인트컷을 지정하기 위한 메서드 */
-    }
+    public void controllerPointcut(){}
 
 
 
@@ -74,9 +71,6 @@ public class LoggingAspect {
 
         log.error("Controller invocation failed");
     }
-
-
-
 
 
 }
