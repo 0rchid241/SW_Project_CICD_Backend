@@ -39,6 +39,7 @@ out/
 
 
 # 로그폴더
+!**/kafka-data/**
 
 # Local environment and generated sensitive files
 .env.*
