@@ -9,6 +9,8 @@ import org.najeungyoon.communitybackend.repository.notification.NotificationRepo
 import org.najeungyoon.communitybackend.service.NotificationSseService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -22,11 +24,13 @@ public class NotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNotificationEvent(NotificationEvent event){
-        log.info("알림 생성: 타겟 = {}, 발신자 = {}, 타입 = {}",
+        log.debug("알림 생성: 타겟 = {}, 발신자 = {}, 타입 = {}, thread = {}",
                 event.receiver().getId(),
                 event.sender() != null ? event.sender().getId() : "익명",
-                event.type());
+                event.type(),
+                Thread.currentThread().getName());
 
         try {
             /* 알림 DB에 저장 */
