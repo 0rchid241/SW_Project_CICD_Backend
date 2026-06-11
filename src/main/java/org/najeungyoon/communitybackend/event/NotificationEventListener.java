@@ -24,7 +24,6 @@ public class NotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNotificationEvent(NotificationEvent event){
         log.debug("알림 생성: 타겟 = {}, 발신자 = {}, 타입 = {}, thread = {}",
                 event.receiver().getId(),
