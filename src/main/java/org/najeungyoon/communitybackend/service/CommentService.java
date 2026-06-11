@@ -1,6 +1,5 @@
 package org.najeungyoon.communitybackend.service;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mindrot.jbcrypt.BCrypt;
@@ -38,7 +37,6 @@ public class CommentService {
     private final BoardAdminRepository boardAdminRepository;
     private final NotificationEventPublisher notificationEventPublisher;
     private final PasswordEncoder passwordEncoder;
-    private final EntityManager entityManager;
 
 
     /* Post가 정말 유효한 경로에서 요청이 들어온건지 보안 검증 확인 후에 반환 */
@@ -113,8 +111,9 @@ public class CommentService {
         Comment comment;
 
         /* 로그인 회원시 */
-        if (senderId != null) {
-            sender = entityManager.getReference(User.class, senderId);
+        if(senderId!=null) {
+            sender = userRepository.findById(senderId)
+                    .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
             /* 회원용 댓글 생성 */
             comment = new Comment(dto.content(), sender, post, mentionedName, parent);
@@ -144,41 +143,13 @@ public class CommentService {
 
         User receiver = post.getUser();
 
-//        String senderDisplayName = sender != null ? sender.getNickname() : dto.authorName();
-//        String message = senderDisplayName + "님이 댓글을 남겼습니다.";
-//        String targetUrl = "/board/" + urlPath + "/post/" + postId;
-//
-//        /* 알림 발송 */
-//        notificationEventPublisher.publishEvent(receiver,sender, NotificationType.COMMENT,
-//                message,targetUrl);
-
-        if (receiver == null) {
-            return;
-        }
-
-        if (senderId != null && receiver.getId().equals(senderId)) {
-            return;
-        }
-
-        String senderDisplayName;
-
-        if (senderId != null) {
-            senderDisplayName = userRepository.findNicknameById(senderId)
-                    .orElse("알 수 없는 사용자");
-        } else {
-            senderDisplayName = dto.authorName();
-        }
-
+        String senderDisplayName = sender != null ? sender.getNickname() : dto.authorName();
         String message = senderDisplayName + "님이 댓글을 남겼습니다.";
         String targetUrl = "/board/" + urlPath + "/post/" + postId;
 
-        notificationEventPublisher.publishEvent(
-                receiver,
-                sender,
-                NotificationType.COMMENT,
-                message,
-                targetUrl
-        );
+        /* 알림 발송 */
+        notificationEventPublisher.publishEvent(receiver,sender, NotificationType.COMMENT,
+                message,targetUrl);
     }
 
 
